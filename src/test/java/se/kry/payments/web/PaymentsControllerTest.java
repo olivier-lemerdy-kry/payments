@@ -1,5 +1,6 @@
 package se.kry.payments.web;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
@@ -10,6 +11,7 @@ import java.math.BigDecimal;
 import java.time.Instant;
 import java.util.Currency;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,7 +54,7 @@ class PaymentsControllerTest {
     var uuid = UUID.fromString("69f655d1-05b9-4220-9e5f-11762ef77e1c");
     var paymentInfo = new PaymentInfo(uuid, Instant.EPOCH, new Amount(BigDecimal.TEN, EUR));
     when(paymentService.getPayment(uuid))
-        .thenReturn(paymentInfo);
+        .thenReturn(Optional.of(paymentInfo));
 
     mockMvc.perform(get("/api/v1/payments/69f655d1-05b9-4220-9e5f-11762ef77e1c"))
         .andExpect(status().isOk())
@@ -60,6 +62,15 @@ class PaymentsControllerTest {
         .andExpect(jsonPath("$.timestamp").value("1970-01-01T00:00:00Z"))
         .andExpect(jsonPath("$.amount.value").value(10))
         .andExpect(jsonPath("$.amount.currency").value("EUR"));
+  }
+
+  @Test
+  void get_payment_NOT_FOUND() throws Exception {
+    when(paymentService.getPayment(any()))
+        .thenReturn(Optional.empty());
+
+    mockMvc.perform(get("/api/v1/payments/69f655d1-05b9-4220-9e5f-11762ef77e1c"))
+        .andExpect(status().isNotFound());
   }
 
   @Test

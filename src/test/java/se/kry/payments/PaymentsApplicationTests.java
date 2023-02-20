@@ -37,6 +37,11 @@ class PaymentsApplicationTests {
             .content(payload))
         .andExpect(status().isCreated())
         .andExpect(jsonPath("$.id").isNotEmpty());
+
+    mockMvc.perform(get("/api/v1/payments"))
+        .andExpect(status().isOk())
+        .andExpect(jsonPath("$[0].amount.value").value(10))
+        .andExpect(jsonPath("$[0].amount.currency").value("EUR"));
   }
 
 }

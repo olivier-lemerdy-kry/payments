@@ -2,6 +2,7 @@ package se.kry.payments.service;
 
 import java.time.Clock;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 import org.springframework.stereotype.Service;
 import se.kry.payments.data.Payment;
@@ -22,11 +23,13 @@ public class PaymentService {
   }
 
   public List<PaymentInfo> getAllPayments() {
-    return null;
+    return repository.findAll().stream()
+        .map(PaymentService::getPaymentInfo)
+        .toList();
   }
 
-  public PaymentInfo getPayment(UUID id) {
-    return null;
+  public Optional<PaymentInfo> getPayment(UUID id) {
+    return repository.findById(id).map(PaymentService::getPaymentInfo);
   }
 
   public PaymentInfo createPayment(Amount amount) {
